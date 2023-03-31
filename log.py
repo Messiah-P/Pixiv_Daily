@@ -1,8 +1,5 @@
-import datetime
 import os
-
-log_path = f"/mnt/nfs/Config/Log/Pixiv/{datetime.datetime.now():%Y-%m-%d}.log"
-time_now = datetime.datetime.now()
+from config import log_path, time_now
 
 def log_output(msg):
     """
