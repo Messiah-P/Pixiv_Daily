@@ -2,6 +2,7 @@ import time
 import requests
 import re
 import datetime
+import config
 import traversal
 import os
 import concurrent.futures
@@ -10,35 +11,21 @@ from fake_useragent import UserAgent
 from extract import extract_pic_info
 from pathlib import Path
 from log import log_output
-import yaml
-
-# 读取YAML文件
-with open("/mnt/python/Pixiv/Pixiv_Daily/config.yml", "r") as f:
-    config = yaml.safe_load(f)
-# 获取Headers配置
-headers = config["headers"]
-cookie = headers["cookie"]
-referer = headers["referer"]
-# 获取Paths配置
-paths = config["paths"]
-PIXIV_DIR = paths["pixiv_dir"]
-ALL_PATHS = paths["all_pic"]
-
-LOGO_PIXIV = 'https://lsky.pantheon.center/image/2022/11/20/637a374fa4aca.jpeg'
-HEAD_BARK = 'https://bark.pantheon.center/WSeN8LCGbCDZqHAJMTmeHP'
 
 repeat = 1
 time_now = datetime.datetime.now()
 time_yesterday = time_now + datetime.timedelta(days=-1)
 log_path = f"/mnt/nfs/Config/Log/Pixiv/{datetime.datetime.now():%Y-%m-%d}.log"
 
-headers = {
-    'referer': referer ,
-    'user-agent': UserAgent(verify_ssl=False).random,
-    'Cookie': cookie
-}
+def create_headers(cookie, referer):
+    headers = {
+        'referer': referer,
+        'user-agent': UserAgent(verify_ssl=False).random,
+        'Cookie': cookie
+    }
+    return headers
 
-def get_single_pic(url, count):
+def get_single_pic(url, count, headers, PIXIV_DIR):
     global repeat
     retry = 1
     while True:
@@ -78,7 +65,7 @@ def print_result(future):
     else:
         log_output(f"第{count}张图片下载失败！")
 
-def get_all_pic_url():
+def get_all_pic_url(headers, PIXIV_DIR, ALL_PATHS, LOGO_PIXIV, HEAD_BARK):
     count = 1
     valid_count = 0
     invalid_count = 0
@@ -99,7 +86,7 @@ def get_all_pic_url():
                     if pid not in traversal_list:
                         log_output(f"正在下载第{count}张图片")
                         # 使用线程池并发下载
-                        future = executor.submit(get_single_pic, url, count)
+                        future = executor.submit(get_single_pic, url, count, headers, PIXIV_DIR)
                         future.add_done_callback(print_result)
                         count += 1
                         valid_count += 1
@@ -115,4 +102,6 @@ def get_all_pic_url():
     return None
 
 if __name__ == '__main__':
-    get_all_pic_url()
+    cookie, referer, PIXIV_DIR, ALL_PATHS, LOGO_PIXIV, HEAD_BARK = config.read_config()
+    headers = create_headers(cookie, referer)
+    get_all_pic_url(headers, PIXIV_DIR, ALL_PATHS, LOGO_PIXIV, HEAD_BARK)
