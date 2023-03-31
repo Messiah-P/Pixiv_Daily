@@ -1,6 +1,5 @@
 import yaml
 
-
 def read_config():
     # 读取YAML文件
     with open("/mnt/python/Pixiv/Pixiv_Daily/config.yml", "r") as f:
