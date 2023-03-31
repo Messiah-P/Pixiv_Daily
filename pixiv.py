@@ -13,18 +13,17 @@ from log import log_output
 import yaml
 
 # 读取YAML文件
-with open("/mnt/python/Pixiv/config.yml", "r") as f:
+with open("/mnt/python/Pixiv/Pixiv_Daily/config.yml", "r") as f:
     config = yaml.safe_load(f)
-
 # 获取Headers配置
 headers = config["headers"]
 cookie = headers["cookie"]
 referer = headers["referer"]
-
 # 获取Paths配置
 paths = config["paths"]
 PIXIV_DIR = paths["pixiv_dir"]
 ALL_PATHS = paths["all_pic"]
+
 LOGO_PIXIV = 'https://lsky.pantheon.center/image/2022/11/20/637a374fa4aca.jpeg'
 HEAD_BARK = 'https://bark.pantheon.center/WSeN8LCGbCDZqHAJMTmeHP'
 
