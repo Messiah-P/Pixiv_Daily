@@ -25,7 +25,6 @@ referer = headers["referer"]
 paths = config["paths"]
 PIXIV_DIR = paths["pixiv_dir"]
 ALL_PATHS = paths["all_pic"]
-
 LOGO_PIXIV = 'https://lsky.pantheon.center/image/2022/11/20/637a374fa4aca.jpeg'
 HEAD_BARK = 'https://bark.pantheon.center/WSeN8LCGbCDZqHAJMTmeHP'
 
