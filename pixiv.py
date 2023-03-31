@@ -1,22 +1,17 @@
-import time
-import requests
 import re
-import datetime
-import config
-import traversal
 import os
-import concurrent.futures
+import time
 import socket
+import requests
+import concurrent.futures
+from pathlib import Path
 from fake_useragent import UserAgent
 from extract import extract_pic_info
-from pathlib import Path
+import traversal
 from log import log_output
+from config import cookie, referer, PIXIV_DIR, ALL_PATHS, LOGO_PIXIV, HEAD_BARK, time_yesterday
 
 repeat = 1
-time_now = datetime.datetime.now()
-time_yesterday = time_now + datetime.timedelta(days=-1)
-log_path = f"/mnt/nfs/Config/Log/Pixiv/{datetime.datetime.now():%Y-%m-%d}.log"
-
 def create_headers(cookie, referer):
     headers = {
         'referer': referer,
@@ -102,6 +97,5 @@ def get_all_pic_url(headers, PIXIV_DIR, ALL_PATHS, LOGO_PIXIV, HEAD_BARK):
     return None
 
 if __name__ == '__main__':
-    cookie, referer, PIXIV_DIR, ALL_PATHS, LOGO_PIXIV, HEAD_BARK = config.read_config()
     headers = create_headers(cookie, referer)
     get_all_pic_url(headers, PIXIV_DIR, ALL_PATHS, LOGO_PIXIV, HEAD_BARK)
