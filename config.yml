@@ -5,6 +5,7 @@ paths:
   all_pic:
     - /mnt/photo/Pixiv
     - /mnt/photo/画师
+  log_path : /mnt/nfs/Config/Log/Pixiv
 
 # 链接配置
 links:
