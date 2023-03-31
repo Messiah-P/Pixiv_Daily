@@ -10,9 +10,22 @@ from fake_useragent import UserAgent
 from extract import extract_pic_info
 from pathlib import Path
 from log import log_output
+import yaml
 
-PIXIV_DIR = '/mnt/photo/Pixiv'
-ALL_PATHS = ['/mnt/photo/Pixiv', '/mnt/photo/画师']
+# 读取YAML文件
+with open("/mnt/python/Pixiv/config.yml", "r") as f:
+    config = yaml.safe_load(f)
+
+# 获取Headers配置
+headers = config["headers"]
+cookie = headers["cookie"]
+referer = headers["referer"]
+
+# 获取Paths配置
+paths = config["paths"]
+PIXIV_DIR = paths["pixiv_dir"]
+ALL_PATHS = paths["all_pic"]
+
 LOGO_PIXIV = 'https://lsky.pantheon.center/image/2022/11/20/637a374fa4aca.jpeg'
 HEAD_BARK = 'https://bark.pantheon.center/WSeN8LCGbCDZqHAJMTmeHP'
 
@@ -22,9 +35,9 @@ time_yesterday = time_now + datetime.timedelta(days=-1)
 log_path = f"/mnt/nfs/Config/Log/Pixiv/{datetime.datetime.now():%Y-%m-%d}.log"
 
 headers = {
-    'referer': 'https://www.pixiv.net/ranking.php?mode=daily&content=illust',
+    'referer': referer ,
     'user-agent': UserAgent(verify_ssl=False).random,
-    'Cookie': open('/mnt/python/Pixiv/cookie.txt', 'r').read().strip()
+    'Cookie': cookie
 }
 
 def get_single_pic(url, count):
