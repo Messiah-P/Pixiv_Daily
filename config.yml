@@ -5,7 +5,11 @@ paths:
   all_pic:
     - /mnt/photo/Pixiv
     - /mnt/photo/画师
-  temp: /path/to/temp
+
+# 链接配置
+links:
+  logo_pixiv : https://lsky.pantheon.center/image/2022/11/20/637a374fa4aca.jpeg
+  head_bark : https://bark.pantheon.center/WSeN8LCGbCDZqHAJMTmeHP
 
 # Headers配置
 headers:
