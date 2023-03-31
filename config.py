@@ -26,3 +26,4 @@ time_now = datetime.datetime.now()
 time_yesterday = time_now + datetime.timedelta(days=-1)
 log_path = f"{LOG_PATH}/{datetime.datetime.now():%Y-%m-%d}.log"
 
+
