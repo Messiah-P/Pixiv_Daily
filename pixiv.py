@@ -5,34 +5,24 @@ import socket
 import requests
 import concurrent.futures
 from pathlib import Path
-from fake_useragent import UserAgent
 from extract import extract_pic_info
-import traversal
 from log import log_output
-from config import cookie, referer, PIXIV_DIR, ALL_PATHS, LOGO_PIXIV, HEAD_BARK, time_yesterday
+from config import PIXIV_DIR, ALL_PATHS, LOGO_PIXIV, HEAD_BARK, time_yesterday
+from preprocess import headers, get_all_pic_url
+from traversal import all_pids
 
 repeat = 1
-def create_headers(cookie, referer):
-    headers = {
-        'referer': referer,
-        'user-agent': UserAgent(verify_ssl=False).random,
-        'Cookie': cookie
-    }
-    return headers
 
-def get_single_pic(url, count, headers):
+def get_single_pic(url, count):
     global repeat
     retry = 1
     while True:
+        log_output(f"正在处理第{count}张图片...")
         try:
             # 使用Session对象，提升请求效率
             with requests.Session() as session:
                 response = session.get(url, headers=headers, timeout=(3, 17))
-                name, user_name, picture, pid = extract_pic_info(response.text)
-                name = re.sub(r'[\\/:\*\?"<>\|]', str(repeat), name)
-                repeat += 1
-                user_name = re.sub(r'[\\/:\*\?"<>\|]', str(repeat), user_name)
-                repeat += 1
+                name, user_name, picture, pid, repeat = extract_pic_info(response.text, repeat)
                 pic = requests.get(picture, headers=headers)
                 pic_name = f"{count} - {user_name} - {name}[pid={pid}].{picture[-3:]}"
                 log_output(f"图名={pic_name}")
@@ -60,42 +50,48 @@ def print_result(future):
     else:
         log_output(f"第{count}张图片下载失败！")
 
-def get_all_pic_url(headers):
+def multithread_download(picUrl, traversal_list):
+    retry = 1
     count = 1
     valid_count = 0
     invalid_count = 0
-    traversal_list = traversal.all_pids(ALL_PATHS)
-    with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
-        for n in range(1, 10 + 1):
-            # 使用f-string格式化字符串，更加简洁明了
-            url = f'https://www.pixiv.net/ranking.php?mode=daily&content=illust&p={n}&format=json'
-            # 使用Session对象，提升请求效率
-            with requests.Session() as session:
-                response = session.get(url, headers=headers)
-                illust_id = re.findall('"illust_id":(\d+?),', response.text)
-                picUrl = ['https://www.pixiv.net/artworks/' + i for i in illust_id]
-            futures = []
-            for url in picUrl:
-                if count <= 50:
-                    pid = url.split('/')[4]
-                    if pid not in traversal_list:
-                        log_output(f"正在下载第{count}张图片")
-                        # 使用线程池并发下载
-                        future = executor.submit(get_single_pic, url, count, headers)
-                        future.add_done_callback(print_result)
-                        count += 1
-                        valid_count += 1
+    while True:
+        try:
+            log_output(f"开始创建多线程下载...")
+            with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+                futures = []
+                for url in picUrl:
+                    if count <= 50:
+                        pid = url.split('/')[4]
+                        if pid not in traversal_list:
+                            # 使用线程池并发下载
+                            future = executor.submit(get_single_pic, url, count)
+                            future.add_done_callback(print_result)
+                            count += 1
+                            valid_count += 1
+                        else:
+                            log_output(f"第{count}张图片(pid={pid}),重复跳过!")
+                            count += 1
+                            invalid_count += 1
                     else:
-                        log_output(f"第{count}张图片(pid={pid}),重复跳过!")
-                        count += 1
-                        invalid_count += 1
-                else:
-                    break
-            concurrent.futures.wait(futures)
-    with requests.Session() as ret:
-        bark = ret.get('%s/Pixiv日榜更新/成功获取新图：%d张\n重复：%d张?icon=%s&group=Pixiv'% (HEAD_BARK,valid_count,invalid_count,LOGO_PIXIV))
+                        break
+                log_output(f"正在等待下载完成...")
+                concurrent.futures.wait(futures)
+                log_output(f"获取新图{valid_count}张,重复{invalid_count}张,下载完成！")
+                with requests.Session() as ret:
+                    bark = ret.get('%s/Pixiv日榜更新/成功获取新图：%d张\n重复：%d张?icon=%s&group=Pixiv' % (HEAD_BARK, valid_count, invalid_count, LOGO_PIXIV))
+            break
+        except (requests.exceptions.RequestException, socket.timeout):
+            log_output(f"创建多线程下载失败，正在进行第{retry}次重试...")
+            time.sleep(3)
+            retry += 1
+            if retry > 5:
+                log_output(f"创建多线程下载失败，重试次数过多，已跳过。")
+                return False
+
     return None
 
 if __name__ == '__main__':
-    headers = create_headers(cookie, referer)
-    get_all_pic_url(headers)
+    picUrl = get_all_pic_url()
+    traversal_list = all_pids(ALL_PATHS)
+    multithread_download(picUrl, traversal_list)
