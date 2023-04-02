@@ -20,7 +20,7 @@ def create_headers(cookie, referer):
     }
     return headers
 
-def get_single_pic(url, count, headers, PIXIV_DIR):
+def get_single_pic(url, count, headers):
     global repeat
     retry = 1
     while True:
@@ -60,7 +60,7 @@ def print_result(future):
     else:
         log_output(f"第{count}张图片下载失败！")
 
-def get_all_pic_url(headers, PIXIV_DIR, ALL_PATHS, LOGO_PIXIV, HEAD_BARK):
+def get_all_pic_url(headers):
     count = 1
     valid_count = 0
     invalid_count = 0
@@ -81,7 +81,7 @@ def get_all_pic_url(headers, PIXIV_DIR, ALL_PATHS, LOGO_PIXIV, HEAD_BARK):
                     if pid not in traversal_list:
                         log_output(f"正在下载第{count}张图片")
                         # 使用线程池并发下载
-                        future = executor.submit(get_single_pic, url, count, headers, PIXIV_DIR)
+                        future = executor.submit(get_single_pic, url, count, headers)
                         future.add_done_callback(print_result)
                         count += 1
                         valid_count += 1
@@ -98,4 +98,4 @@ def get_all_pic_url(headers, PIXIV_DIR, ALL_PATHS, LOGO_PIXIV, HEAD_BARK):
 
 if __name__ == '__main__':
     headers = create_headers(cookie, referer)
-    get_all_pic_url(headers, PIXIV_DIR, ALL_PATHS, LOGO_PIXIV, HEAD_BARK)
+    get_all_pic_url(headers)
