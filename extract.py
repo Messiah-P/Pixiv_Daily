@@ -1,5 +1,4 @@
 import re
-
 from log import log_output
 
 def extract_pic_info(response_text, repeat):
