@@ -14,6 +14,7 @@ headers = {
 
 
 def get_all_pic_url():
+    illust_id = []
     log_output(f"开始获取日榜插画...")
     for n in range(1, 10 + 1):
         log_output(f"获取第{n}页插画...")
@@ -26,7 +27,7 @@ def get_all_pic_url():
                 # 使用Session对象，提升请求效率
                 with requests.Session() as session:
                     response = session.get(url, headers=headers)
-                    illust_id = re.findall('"illust_id":(\d+?),', response.text)
+                    illust_id = illust_id + re.findall('"illust_id":(\d+?),', response.text)
                     break
             except (requests.exceptions.RequestException, socket.timeout):
                 log_output(f"获取第{n}页插画下载链接，正在进行第{retry}次重试...")
