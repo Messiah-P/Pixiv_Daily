@@ -76,9 +76,9 @@ def multithread_download(picUrl, traversal_list):
                         break
                 log_output(f"正在等待下载完成...")
                 concurrent.futures.wait(futures)
-                log_output(f"获取新图{valid_count}张,重复{invalid_count}张,下载完成！")
-                with requests.Session() as ret:
-                    bark = ret.get('%s/Pixiv日榜更新/成功获取新图：%d张\n重复：%d张?icon=%s&group=Pixiv' % (HEAD_BARK, valid_count, invalid_count, LOGO_PIXIV))
+            log_output(f"获取新图{valid_count}张,重复{invalid_count}张,下载完成！")
+            with requests.Session() as ret:
+                bark = ret.get('%s/Pixiv日榜更新/成功获取新图：%d张\n重复：%d张?icon=%s&group=Pixiv' % (HEAD_BARK, valid_count, invalid_count, LOGO_PIXIV))
             break
         except (requests.exceptions.RequestException, socket.timeout):
             log_output(f"创建多线程下载失败，正在进行第{retry}次重试...")
