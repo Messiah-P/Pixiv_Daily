@@ -8,7 +8,8 @@ from extract import extract_pic_info
 from log import log_output
 from config import PIXIV_DIR, ALL_PATHS, LOGO_PIXIV, HEAD_BARK, time_yesterday
 from preprocess import headers, get_all_pic_url
-from traversal import all_pids
+from traversal import all_pids,update_all_artworks
+from db.artworks import query
 
 repeat = 1
 
@@ -49,7 +50,7 @@ def print_result(future):
     else:
         log_output(f"第{count}张图片下载失败！")
 
-def multithread_download(picUrl, traversal_list):
+def multithread_download(picUrl):
     retry = 1
     count = 1
     valid_count = 0
@@ -62,7 +63,8 @@ def multithread_download(picUrl, traversal_list):
                 for url in picUrl:
                     if count <= 50:
                         pid = url.split('/')[4]
-                        if pid not in traversal_list:
+                        #if pid not in traversal_list:
+                        if query("artworks", pid):
                             # 使用线程池并发下载
                             future = executor.submit(get_single_pic, url, count)
                             future.add_done_callback(print_result)
@@ -91,6 +93,12 @@ def multithread_download(picUrl, traversal_list):
     return None
 
 if __name__ == '__main__':
+
     picUrl = get_all_pic_url()
-    traversal_list = all_pids(ALL_PATHS)
-    multithread_download(picUrl, traversal_list)
+    multithread_download(picUrl)
+
+    # update_all_artworks(ALL_PATHS) //更新图库
+    # traversal_list = all_pids(ALL_PATHS) //废弃
+    # multithread_download(picUrl, traversal_list) //废弃
+
+

@@ -8,7 +8,7 @@ from log import log_output
 
 headers = {
     'referer': referer,
-    'user-agent': UserAgent(verify_ssl=False).random,
+    'user-agent': UserAgent().random,
     'Cookie': cookie
 }
 
