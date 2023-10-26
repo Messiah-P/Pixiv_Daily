@@ -2,7 +2,7 @@ import re
 import socket
 import time
 import requests
-from config import cookie, referer, PIXIV_DIR, ALL_PATHS, LOGO_PIXIV, HEAD_BARK
+from conf.config import cookie, referer, PIXIV_DIR, ALL_PATHS, LOGO_PIXIV, HEAD_BARK
 from fake_useragent import UserAgent
 from log import log_output
 

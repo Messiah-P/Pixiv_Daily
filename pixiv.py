@@ -6,7 +6,7 @@ import concurrent.futures
 from pathlib import Path
 from extract import extract_pic_info
 from log import log_output
-from config import PIXIV_DIR, ALL_PATHS, LOGO_PIXIV, HEAD_BARK, time_yesterday
+from conf.config import PIXIV_DIR, ALL_PATHS, LOGO_PIXIV, HEAD_BARK, time_yesterday
 from preprocess import headers, get_all_pic_url
 from traversal import all_pids,update_all_artworks
 from db.artworks import query
