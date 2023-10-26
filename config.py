@@ -1,8 +1,11 @@
 import datetime
 import yaml
+import os
 
 # 读取YAML文件
-with open("/mnt/python/Pixiv/Pixiv_Daily/config.yml", "r") as f:
+current_dir = os.path.dirname(os.path.abspath(__file__))
+config_path = os.path.join(current_dir,"config.yml")
+with open(config_path, "r") as f:
     config = yaml.safe_load(f)
 
 # 获取Headers配置
